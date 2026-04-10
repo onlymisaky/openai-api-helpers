@@ -1,20 +1,77 @@
 {
   "name": "openai-api-helpers",
+  "type": "module",
   "version": "1.0.0",
-  "description": "Thin TypeScript helpers for OpenAI Responses API and Chat Completions.",
+  "description": "Thin helpers for OpenAI Responses API and Chat Completions.",
+  "author": "onlymisaky",
   "license": "ISC",
+  "homepage": "https://github.com/onlymisaky/openai-api-helpers#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/onlymisaky/openai-api-helpers.git"
+  },
+  "bugs": {
+    "url": "https://github.com/onlymisaky/openai-api-helpers/issues"
+  },
+  "keywords": [
+    "openai",
+    "responses-api",
+    "chat-completions",
+    "typescript",
+    "sdk"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./chat": {
+      "types": "./dist/chat/index.d.ts",
+      "import": "./dist/chat/index.js",
+      "require": "./dist/chat/index.cjs"
+    },
+    "./responses": {
+      "types": "./dist/responses/index.d.ts",
+      "import": "./dist/responses/index.js",
+      "require": "./dist/responses/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsup --config tsup.config.ts",
+    "check": "npm run lint && npx tsc --noEmit",
+    "smoke:consume": "node ./scripts/smoke-consume.mjs",
     "typecheck": "npm run lint && npx tsc --noEmit",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "prepublishOnly": "npm run check && npm run build && npm run smoke:consume"
   },
-  "dependencies": {
-    "openai": "^6.34.0"
+  "peerDependencies": {
+    "openai": ">=6.0.0 <7"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.1.1",
     "@types/node": "^25.5.2",
     "eslint": "^10.2.0",
+    "openai": "^6.34.0",
+    "tsup": "^8.5.1",
     "typescript": "^6.0.2"
   }
 }

@@ -1,54 +1,51 @@
-import type {
-  FunctionTool,
-  Response,
-  ResponseCreateParamsNonStreaming,
-  ResponseCreateParamsStreaming,
-} from 'openai/resources/responses/responses';
+import type OpenAI from 'openai';
 import type {
   ToolCallRecord,
   ToolExecutionOptions,
   ToolHandlerMap,
   ToolResultRecord,
-} from '../shared/tools';
+} from '../shared/tools.js';
 import type {
   OpenAIClientOptions,
   OptionalModel,
   TextStreamCallbacks,
-} from '../shared/types';
+} from '../shared/types.js';
 
 export type CallResponseParams
-  = OpenAIClientOptions & OptionalModel<ResponseCreateParamsNonStreaming>;
+  = OpenAIClientOptions
+    & OptionalModel<OpenAI.Responses.ResponseCreateParamsNonStreaming>;
 
 export interface CallResponseResult {
   text: string;
-  raw: Response;
+  raw: OpenAI.Responses.Response;
 }
 
 export type CallResponseJsonParams
-  = OpenAIClientOptions & OptionalModel<ResponseCreateParamsNonStreaming>;
+  = OpenAIClientOptions
+    & OptionalModel<OpenAI.Responses.ResponseCreateParamsNonStreaming>;
 
 export interface CallResponseJsonResult<T = Record<string, unknown>> {
   data: T;
-  raw: Response;
+  raw: OpenAI.Responses.Response;
 }
 
 export type CallResponseStreamParams
   = OpenAIClientOptions
-    & OptionalModel<Omit<ResponseCreateParamsStreaming, 'stream'>>
+    & OptionalModel<Omit<OpenAI.Responses.ResponseCreateParamsStreaming, 'stream'>>
     & TextStreamCallbacks;
 
 type CallResponseToolBaseParams
   = OpenAIClientOptions
-    & OptionalModel<Omit<ResponseCreateParamsNonStreaming, 'tools'>>
+    & OptionalModel<Omit<OpenAI.Responses.ResponseCreateParamsNonStreaming, 'tools'>>
     & {
-      tools: FunctionTool[];
+      tools: OpenAI.Responses.FunctionTool[];
     };
 
 export type CallResponseToolOnceParams = CallResponseToolBaseParams
 
 export interface CallResponseToolOnceResult {
   text: string;
-  raw: Response;
+  raw: OpenAI.Responses.Response;
   toolCalls: ToolCallRecord[];
   done: boolean;
 }
@@ -62,7 +59,7 @@ export type CallResponseToolsParams
 
 export interface CallResponseToolsResult {
   text: string;
-  raw: Response;
+  raw: OpenAI.Responses.Response;
   steps: number;
   toolCalls: ToolCallRecord[];
   toolResults: ToolResultRecord[];

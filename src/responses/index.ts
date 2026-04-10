@@ -5,16 +5,16 @@ export type {
   ToolHandlerMap,
   ToolResultRecord,
   ToolStepEvent,
-} from '../shared/tools';
+} from '../shared/tools.js';
 export {
   callResponse,
   callResponseJson,
   callResponseStream,
-} from './functions';
+} from './functions.js';
 export {
   callResponseToolOnce,
   callResponseTools,
-} from './tools';
+} from './tools.js';
 export type {
   CallResponseJsonParams,
   CallResponseJsonResult,
@@ -25,4 +25,4 @@ export type {
   CallResponseToolOnceResult,
   CallResponseToolsParams,
   CallResponseToolsResult,
-} from './types';
+} from './types.js';

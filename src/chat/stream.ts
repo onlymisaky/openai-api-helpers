@@ -1,8 +1,8 @@
-import type { ChatCompletionChunk } from 'openai/resources/chat/completions';
-import type { CallChatCompletionStreamParams } from './types';
+import type OpenAI from 'openai';
+import type { CallChatCompletionStreamParams } from './types.js';
 
 export async function* createStreamGenerator(
-  stream: AsyncIterable<ChatCompletionChunk>,
+  stream: AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
 ): AsyncGenerator<string, void, unknown> {
   for await (const chunk of stream) {
     const text = chunk.choices[0]?.delta?.content ?? '';
@@ -13,7 +13,7 @@ export async function* createStreamGenerator(
 }
 
 export async function consumeStream(
-  stream: AsyncIterable<ChatCompletionChunk>,
+  stream: AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
   params: CallChatCompletionStreamParams & {
     onChunk: NonNullable<CallChatCompletionStreamParams['onChunk']>;
   },

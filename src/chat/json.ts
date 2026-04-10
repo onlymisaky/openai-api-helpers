@@ -1,10 +1,9 @@
-import type {
-  ChatCompletion,
-  ChatCompletionMessage,
-} from 'openai/resources/chat/completions';
-import { assertJsonObject } from '../shared/json';
+import type OpenAI from 'openai';
+import { assertJsonObject } from '../shared/json.js';
 
-export function extractTextContent(message?: ChatCompletionMessage | null): string {
+export function extractTextContent(
+  message?: OpenAI.Chat.ChatCompletionMessage | null,
+): string {
   if (!message?.content) {
     return '';
   }
@@ -12,12 +11,12 @@ export function extractTextContent(message?: ChatCompletionMessage | null): stri
   return message.content;
 }
 
-export function extractChoiceTexts(response: ChatCompletion): string[] {
+export function extractChoiceTexts(response: OpenAI.Chat.ChatCompletion): string[] {
   return response.choices.map(choice => extractTextContent(choice.message));
 }
 
 export function parseSingleChoiceJsonResponse<T = Record<string, unknown>>(
-  response: ChatCompletion,
+  response: OpenAI.Chat.ChatCompletion,
 ): T {
   if (response.choices.length === 0) {
     throw new Error('OpenAI JSON response did not contain any choices.');

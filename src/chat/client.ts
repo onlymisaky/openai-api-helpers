@@ -1,15 +1,12 @@
-import type {
-  ChatCompletionCreateParamsNonStreaming,
-  ChatCompletionCreateParamsStreaming,
-} from 'openai/resources/chat/completions';
+import type OpenAI from 'openai';
 import type {
   CallChatCompletionJsonParams,
   CallChatCompletionParams,
   CallChatCompletionStreamParams,
   CallChatCompletionToolOnceParams,
   CallChatCompletionToolsParams,
-} from './types';
-import { DEFAULT_MODEL } from '../shared/constants';
+} from './types.js';
+import { DEFAULT_MODEL } from '../shared/constants.js';
 
 export function createNonStreamingParams(
   params:
@@ -17,7 +14,7 @@ export function createNonStreamingParams(
     | CallChatCompletionJsonParams
     | CallChatCompletionToolOnceParams
     | CallChatCompletionToolsParams,
-): ChatCompletionCreateParamsNonStreaming {
+): OpenAI.Chat.ChatCompletionCreateParamsNonStreaming {
   const { apiKey, baseURL, organization, project, client, ...request } = params;
 
   return {
@@ -28,7 +25,7 @@ export function createNonStreamingParams(
 
 export function createStreamingParams(
   params: CallChatCompletionStreamParams,
-): ChatCompletionCreateParamsStreaming {
+): OpenAI.Chat.ChatCompletionCreateParamsStreaming {
   const {
     apiKey,
     baseURL,

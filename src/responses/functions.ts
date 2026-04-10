@@ -4,12 +4,12 @@ import type {
   CallResponseParams,
   CallResponseResult,
   CallResponseStreamParams,
-} from './types';
-import { getClient } from '../shared/client';
-import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants';
-import { createJsonTextFormat, createNonStreamingParams, createStreamingParams } from './client';
-import { parseResponsesJsonResponse } from './json';
-import { consumeStream, createStreamGenerator } from './stream';
+} from './types.js';
+import { getClient } from '../shared/client.js';
+import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants.js';
+import { createJsonTextFormat, createNonStreamingParams, createStreamingParams } from './client.js';
+import { parseResponsesJsonResponse } from './json.js';
+import { consumeStream, createStreamGenerator } from './stream.js';
 
 export async function callResponse(
   params: CallResponseParams,

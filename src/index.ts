@@ -1,5 +1,5 @@
-export * from './chat';
-export * from './responses';
+export * from './chat/index.js';
+export * from './responses/index.js';
 
 export type {
   ToolCallRecord,
@@ -8,5 +8,5 @@ export type {
   ToolHandlerMap,
   ToolResultRecord,
   ToolStepEvent,
-} from './shared/tools';
-export type { OpenAIClientOptions } from './shared/types';
+} from './shared/tools.js';
+export type { OpenAIClientOptions } from './shared/types.js';

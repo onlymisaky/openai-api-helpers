@@ -1,17 +1,12 @@
-import type {
-  ResponseCreateParamsNonStreaming,
-  ResponseCreateParamsStreaming,
-  ResponseFormatTextConfig,
-  ResponseTextConfig,
-} from 'openai/resources/responses/responses';
+import type OpenAI from 'openai';
 import type {
   CallResponseJsonParams,
   CallResponseParams,
   CallResponseStreamParams,
   CallResponseToolOnceParams,
   CallResponseToolsParams,
-} from './types';
-import { DEFAULT_MODEL } from '../shared/constants';
+} from './types.js';
+import { DEFAULT_MODEL } from '../shared/constants.js';
 
 export function createNonStreamingParams(
   params:
@@ -19,7 +14,7 @@ export function createNonStreamingParams(
     | CallResponseJsonParams
     | CallResponseToolOnceParams
     | CallResponseToolsParams,
-): ResponseCreateParamsNonStreaming {
+): OpenAI.Responses.ResponseCreateParamsNonStreaming {
   const { apiKey, baseURL, organization, project, client, ...request } = params;
 
   return {
@@ -30,7 +25,7 @@ export function createNonStreamingParams(
 
 export function createStreamingParams(
   params: CallResponseStreamParams,
-): ResponseCreateParamsStreaming {
+): OpenAI.Responses.ResponseCreateParamsStreaming {
   const {
     apiKey,
     baseURL,
@@ -50,8 +45,8 @@ export function createStreamingParams(
 }
 
 export function createJsonTextFormat(
-  text?: ResponseTextConfig | null,
-): ResponseFormatTextConfig {
+  text?: OpenAI.Responses.ResponseTextConfig | null,
+): OpenAI.Responses.ResponseFormatTextConfig {
   if (!text?.format) {
     return {
       type: 'json_schema',

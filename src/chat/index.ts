@@ -5,16 +5,16 @@ export type {
   ToolHandlerMap,
   ToolResultRecord,
   ToolStepEvent,
-} from '../shared/tools';
+} from '../shared/tools.js';
 export {
   callChatCompletion,
   callChatCompletionJson,
   callChatCompletionStream,
-} from './functions';
+} from './functions.js';
 export {
   callChatCompletionToolOnce,
   callChatCompletionTools,
-} from './tools';
+} from './tools.js';
 export type {
   CallChatCompletionJsonParams,
   CallChatCompletionJsonResult,
@@ -25,4 +25,4 @@ export type {
   CallChatCompletionToolOnceResult,
   CallChatCompletionToolsParams,
   CallChatCompletionToolsResult,
-} from './types';
+} from './types.js';

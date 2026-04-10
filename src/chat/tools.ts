@@ -1,24 +1,20 @@
-import type {
-  ChatCompletion,
-  ChatCompletionAssistantMessageParam,
-  ChatCompletionMessageFunctionToolCall,
-} from 'openai/resources/chat/completions';
-import type { ToolCallRecord, ToolResultRecord } from '../shared/tools';
+import type OpenAI from 'openai';
+import type { ToolCallRecord, ToolResultRecord } from '../shared/tools.js';
 import type {
   CallChatCompletionToolOnceParams,
   CallChatCompletionToolOnceResult,
   CallChatCompletionToolsParams,
   CallChatCompletionToolsResult,
-} from './types';
-import { getClient } from '../shared/client';
+} from './types.js';
+import { getClient } from '../shared/client.js';
 import {
   getHandler,
   getMaxSteps,
   parseToolArguments,
   serializeToolOutput,
-} from '../shared/tools';
-import { createNonStreamingParams } from './client';
-import { extractChoiceTexts } from './json';
+} from '../shared/tools.js';
+import { createNonStreamingParams } from './client.js';
+import { extractChoiceTexts } from './json.js';
 
 export async function callChatCompletionToolOnce(
   params: CallChatCompletionToolOnceParams,
@@ -106,10 +102,13 @@ export async function callChatCompletionTools(
   throw new Error(`Tool execution exceeded maxSteps (${maxSteps}).`)
 }
 
-function extractFunctionToolCalls(response: ChatCompletion): ToolCallRecord[] {
+function extractFunctionToolCalls(
+  response: OpenAI.Chat.ChatCompletion,
+): ToolCallRecord[] {
   const message = getFirstMessage(response)
   const toolCalls = message.tool_calls?.filter(
-    (toolCall): toolCall is ChatCompletionMessageFunctionToolCall => toolCall.type === 'function',
+    (toolCall): toolCall is OpenAI.Chat.ChatCompletionMessageFunctionToolCall =>
+      toolCall.type === 'function',
   ) ?? []
 
   return toolCalls.map(toolCall => ({
@@ -123,7 +122,7 @@ function extractFunctionToolCalls(response: ChatCompletion): ToolCallRecord[] {
   }))
 }
 
-function getFirstMessage(response: ChatCompletion) {
+function getFirstMessage(response: OpenAI.Chat.ChatCompletion) {
   const message = response.choices[0]?.message
 
   if (!message) {
@@ -134,8 +133,8 @@ function getFirstMessage(response: ChatCompletion) {
 }
 
 function toAssistantMessage(
-  message: ChatCompletion['choices'][number]['message'],
-): ChatCompletionAssistantMessageParam {
+  message: OpenAI.Chat.ChatCompletion['choices'][number]['message'],
+): OpenAI.Chat.ChatCompletionAssistantMessageParam {
   return {
     role: 'assistant',
     content: message.content,

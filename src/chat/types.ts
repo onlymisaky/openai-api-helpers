@@ -1,54 +1,51 @@
-import type {
-  ChatCompletion,
-  ChatCompletionCreateParamsNonStreaming,
-  ChatCompletionCreateParamsStreaming,
-  ChatCompletionFunctionTool,
-} from 'openai/resources/chat/completions';
+import type OpenAI from 'openai';
 import type {
   ToolCallRecord,
   ToolExecutionOptions,
   ToolHandlerMap,
   ToolResultRecord,
-} from '../shared/tools';
+} from '../shared/tools.js';
 import type {
   OpenAIClientOptions,
   OptionalModel,
   TextStreamCallbacks,
-} from '../shared/types';
+} from '../shared/types.js';
 
 export type CallChatCompletionParams
-  = OpenAIClientOptions & OptionalModel<ChatCompletionCreateParamsNonStreaming>;
+  = OpenAIClientOptions
+    & OptionalModel<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming>;
 
 export interface CallChatCompletionResult {
   text: string;
-  raw: ChatCompletion;
+  raw: OpenAI.Chat.ChatCompletion;
 }
 
 export type CallChatCompletionJsonParams
-  = OpenAIClientOptions & OptionalModel<Omit<ChatCompletionCreateParamsNonStreaming, 'n'>>;
+  = OpenAIClientOptions
+    & OptionalModel<Omit<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming, 'n'>>;
 
 export interface CallChatCompletionJsonResult<T = Record<string, unknown>> {
   data: T;
-  raw: ChatCompletion;
+  raw: OpenAI.Chat.ChatCompletion;
 }
 
 export type CallChatCompletionStreamParams
   = OpenAIClientOptions
-    & OptionalModel<Omit<ChatCompletionCreateParamsStreaming, 'stream'>>
+    & OptionalModel<Omit<OpenAI.Chat.ChatCompletionCreateParamsStreaming, 'stream'>>
     & TextStreamCallbacks;
 
 type CallChatCompletionToolBaseParams
   = OpenAIClientOptions
-    & OptionalModel<Omit<ChatCompletionCreateParamsNonStreaming, 'n' | 'tools'>>
+    & OptionalModel<Omit<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming, 'n' | 'tools'>>
     & {
-      tools: ChatCompletionFunctionTool[];
+      tools: OpenAI.Chat.ChatCompletionFunctionTool[];
     };
 
 export type CallChatCompletionToolOnceParams = CallChatCompletionToolBaseParams
 
 export interface CallChatCompletionToolOnceResult {
   text: string;
-  raw: ChatCompletion;
+  raw: OpenAI.Chat.ChatCompletion;
   toolCalls: ToolCallRecord[];
   done: boolean;
 }
@@ -62,7 +59,7 @@ export type CallChatCompletionToolsParams
 
 export interface CallChatCompletionToolsResult {
   text: string;
-  raw: ChatCompletion;
+  raw: OpenAI.Chat.ChatCompletion;
   steps: number;
   toolCalls: ToolCallRecord[];
   toolResults: ToolResultRecord[];

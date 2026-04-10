@@ -1,8 +1,8 @@
-import type { Response } from 'openai/resources/responses/responses';
-import { assertJsonObject } from '../shared/json';
+import type OpenAI from 'openai';
+import { assertJsonObject } from '../shared/json.js';
 
 export function parseResponsesJsonResponse<T = Record<string, unknown>>(
-  response: Response,
+  response: OpenAI.Responses.Response,
 ): T {
   const rawText = response.output_text ?? '';
 

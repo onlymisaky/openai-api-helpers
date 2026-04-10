@@ -1,4 +1,4 @@
-import type { OpenAIClientOptions } from './types';
+import type { OpenAIClientOptions } from './types.js';
 import OpenAI from 'openai';
 
 export function getClient(options: OpenAIClientOptions): OpenAI {

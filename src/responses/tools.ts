@@ -1,24 +1,19 @@
-import type {
-  Response,
-  ResponseCreateParamsNonStreaming,
-  ResponseFunctionToolCall,
-  ResponseInputItem,
-} from 'openai/resources/responses/responses';
-import type { ToolCallRecord, ToolResultRecord } from '../shared/tools';
+import type OpenAI from 'openai';
+import type { ToolCallRecord, ToolResultRecord } from '../shared/tools.js';
 import type {
   CallResponseToolOnceParams,
   CallResponseToolOnceResult,
   CallResponseToolsParams,
   CallResponseToolsResult,
-} from './types';
-import { getClient } from '../shared/client';
+} from './types.js';
+import { getClient } from '../shared/client.js';
 import {
   getHandler,
   getMaxSteps,
   parseToolArguments,
   serializeToolOutput,
-} from '../shared/tools';
-import { createNonStreamingParams } from './client';
+} from '../shared/tools.js';
+import { createNonStreamingParams } from './client.js';
 
 export async function callResponseToolOnce(
   params: CallResponseToolOnceParams,
@@ -69,7 +64,7 @@ export async function callResponseTools(
       };
     }
 
-    const input: ResponseInputItem[] = []
+    const input: OpenAI.Responses.ResponseInputItem[] = []
 
     for (const toolCall of toolCalls) {
       await params.onToolCall?.(toolCall);
@@ -98,9 +93,14 @@ export async function callResponseTools(
   throw new Error(`Tool execution exceeded maxSteps (${maxSteps}).`)
 }
 
-function extractFunctionToolCalls(response: Response): ToolCallRecord[] {
+function extractFunctionToolCalls(
+  response: OpenAI.Responses.Response,
+): ToolCallRecord[] {
   return response.output
-    .filter((item): item is ResponseFunctionToolCall => item.type === 'function_call')
+    .filter(
+      (item): item is OpenAI.Responses.ResponseFunctionToolCall =>
+        item.type === 'function_call',
+    )
     .map(toolCall => ({
       id: toolCall.call_id,
       name: toolCall.name,
@@ -111,9 +111,9 @@ function extractFunctionToolCalls(response: Response): ToolCallRecord[] {
 
 function createNextRequest(
   params: CallResponseToolsParams,
-  response: Response,
-  input: ResponseInputItem[],
-): ResponseCreateParamsNonStreaming {
+  response: OpenAI.Responses.Response,
+  input: OpenAI.Responses.ResponseInputItem[],
+): OpenAI.Responses.ResponseCreateParamsNonStreaming {
   return createNonStreamingParams({
     ...params,
     input,

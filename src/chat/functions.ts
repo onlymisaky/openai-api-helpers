@@ -4,12 +4,12 @@ import type {
   CallChatCompletionParams,
   CallChatCompletionResult,
   CallChatCompletionStreamParams,
-} from './types';
-import { getClient } from '../shared/client';
-import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants';
-import { createNonStreamingParams, createStreamingParams } from './client';
-import { extractChoiceTexts, parseSingleChoiceJsonResponse } from './json';
-import { consumeStream, createStreamGenerator } from './stream';
+} from './types.js';
+import { getClient } from '../shared/client.js';
+import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants.js';
+import { createNonStreamingParams, createStreamingParams } from './client.js';
+import { extractChoiceTexts, parseSingleChoiceJsonResponse } from './json.js';
+import { consumeStream, createStreamGenerator } from './stream.js';
 
 /**
  * Compatibility wrapper around the legacy Chat Completions API.

@@ -1,8 +1,8 @@
-import type { ResponseStreamEvent } from 'openai/resources/responses/responses';
-import type { CallResponseStreamParams } from './types';
+import type OpenAI from 'openai';
+import type { CallResponseStreamParams } from './types.js';
 
 export async function* createStreamGenerator(
-  stream: AsyncIterable<ResponseStreamEvent>,
+  stream: AsyncIterable<OpenAI.Responses.ResponseStreamEvent>,
 ): AsyncGenerator<string, void, unknown> {
   for await (const event of stream) {
     if (event.type === 'response.output_text.delta' && event.delta) {
@@ -12,7 +12,7 @@ export async function* createStreamGenerator(
 }
 
 export async function consumeStream(
-  stream: AsyncIterable<ResponseStreamEvent>,
+  stream: AsyncIterable<OpenAI.Responses.ResponseStreamEvent>,
   params: CallResponseStreamParams & {
     onChunk: NonNullable<CallResponseStreamParams['onChunk']>;
   },
