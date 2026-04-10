@@ -1,0 +1,20 @@
+{
+  "name": "openai-api-helpers",
+  "version": "1.0.0",
+  "description": "Thin TypeScript helpers for OpenAI Responses API and Chat Completions.",
+  "license": "ISC",
+  "scripts": {
+    "typecheck": "npm run lint && npx tsc --noEmit",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
+  },
+  "dependencies": {
+    "openai": "^6.34.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^8.1.1",
+    "@types/node": "^25.5.2",
+    "eslint": "^10.2.0",
+    "typescript": "^6.0.2"
+  }
+}
