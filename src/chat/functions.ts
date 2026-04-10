@@ -41,7 +41,7 @@ export async function callChatCompletionJson<T = Record<string, unknown>>(
   const responseFormat = params.response_format ?? { type: 'json_object' as const };
   const messages = [
     ...params.messages,
-    { role: 'developer' as const, content: JSON_ONLY_SYSTEM_PROMPT },
+    { role: 'system' as const, content: JSON_ONLY_SYSTEM_PROMPT },
   ];
 
   const response = await client.chat.completions.create({
