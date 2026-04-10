@@ -43,6 +43,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "CHANGELOG.md",
     "LICENSE",
     "README.md",
     "dist"
@@ -56,11 +57,13 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "tsup --config tsup.config.ts",
+    "changeset": "changeset",
     "check": "npm run lint && npx tsc --noEmit",
+    "release": "changeset publish",
     "smoke:consume": "node ./scripts/smoke-consume.mjs",
-    "typecheck": "npm run lint && npx tsc --noEmit",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
+    "version-packages": "changeset version",
     "prepublishOnly": "npm run check && npm run build && npm run smoke:consume"
   },
   "peerDependencies": {
@@ -68,6 +71,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.1.1",
+    "@changesets/cli": "^2.30.0",
     "@types/node": "^25.5.2",
     "eslint": "^10.2.0",
     "openai": "^6.34.0",

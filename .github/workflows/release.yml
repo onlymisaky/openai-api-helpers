@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package
+        run: npm run check
+
+      - name: Build package
+        run: npm run build
+
+      - name: Smoke-test published artifact
+        run: npm run smoke:consume
+
+      - name: Detect pending changesets
+        id: changesets
+        shell: bash
+        run: |
+          if find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | grep -q .; then
+            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure git
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Version package
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: npm run version-packages
+
+      - name: Commit release version
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          git add package.json package-lock.json CHANGELOG.md .changeset
+          git commit -m "chore: release [skip ci]"
+
+      - name: Create git tag
+        if: steps.changesets.outputs.has_changesets == 'true'
+        id: version
+        shell: bash
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          git tag "v$VERSION"
+
+      - name: Publish package
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: npm publish
+
+# GitHub Actions 用 OIDC 直接向 npm 换短期凭证，不再依赖长期 NPM_TOKEN。
+
+# - 优先使用 trusted publishing，而不是 token
+#   https://docs.npmjs.com/trusted-publishers
+# - 用 trusted publishing 时，npm 会自动做 provenance，不需要再手动加 --provenance
+#   https://docs.npmjs.com/generating-provenance-statements
+
+      # - name: Publish package
+      #   if: steps.changesets.outputs.has_changesets == 'true'
+      #   run: npm publish --provenance
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push release commit and tag
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: |
+          git push origin HEAD:master
+          git push origin "v${{ steps.version.outputs.version }}"

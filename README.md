@@ -14,27 +14,6 @@
 - `流式文本`
 - `function tools` 的单轮调用与自动循环执行
 
-<!-- 
-
-## 导出函数
-
-推荐优先使用 `Responses API`：
-
-- `callResponse`
-- `callResponseJson`
-- `callResponseStream`
-- `callResponseToolOnce`
-- `callResponseTools`
-
-兼容保留 `Chat Completions API`：
-
-- `callChatCompletion`
-- `callChatCompletionJson`
-- `callChatCompletionStream`
-- `callChatCompletionToolOnce`
-- `callChatCompletionTools` 
-
--->
 
 ## 设计原则
 
@@ -49,8 +28,6 @@
 这样做的目标是减少调用方的二次映射成本。你可以直接参考官方文档和 SDK 类型来使用这层封装。
 
 ## 快速开始
-
-安装：
 
 ```bash
 npm install openai openai-api-helpers
@@ -370,3 +347,15 @@ interface ToolLoopResult<TRaw> {
 - Node.js `>= 18`
 - `ESM` 和 `CJS`
 - `openai` 版本 `>=6.0.0 <7`
+- 已验证的 `openai` 版本：`6.0.0`、`6.34.0`
+
+## 维护者发布流程
+
+- 需要发布的变更，请先运行 `npm run changeset` 生成一个 `.changeset/*.md`
+- 带有 changeset 的 PR 合并到 `master` 后，GitHub Actions 会自动：
+  - 运行 `check`、`build`、`smoke:consume`
+  - 执行 `changeset version`
+  - 更新 `package.json`、`package-lock.json`、`CHANGELOG.md`
+  - 推送 release commit 和 `v<version>` tag
+  - 通过 GitHub OIDC trusted publishing 发布 npm 包
+- 没有 changeset 的提交仍会跑校验，但不会发布 npm
