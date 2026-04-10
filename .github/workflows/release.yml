@@ -82,12 +82,12 @@ jobs:
         if: steps.changesets.outputs.has_changesets == 'true'
         run: npm publish
 
-# GitHub Actions 用 OIDC 直接向 npm 换短期凭证，不再依赖长期 NPM_TOKEN。
+      # GitHub Actions 用 OIDC 直接向 npm 换短期凭证，不再依赖长期 NPM_TOKEN。
 
-# - 优先使用 trusted publishing，而不是 token
-#   https://docs.npmjs.com/trusted-publishers
-# - 用 trusted publishing 时，npm 会自动做 provenance，不需要再手动加 --provenance
-#   https://docs.npmjs.com/generating-provenance-statements
+      # - 优先使用 trusted publishing，而不是 token
+      #   https://docs.npmjs.com/trusted-publishers
+      # - 用 trusted publishing 时，npm 会自动做 provenance，不需要再手动加 --provenance
+      #   https://docs.npmjs.com/generating-provenance-statements
 
       # - name: Publish package
       #   if: steps.changesets.outputs.has_changesets == 'true'
