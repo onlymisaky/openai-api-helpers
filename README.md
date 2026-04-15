@@ -83,10 +83,23 @@ const result = await callResponseJson<{
   },
 });
 
-console.log(result.data.title);
+if (result.parseError) {
+  console.error(result.parseError.message);
+}
+else {
+  console.log(result.data?.title);
+}
 ```
 
 如果不传 `text.format`，封装层会自动补一个宽松的 object schema，然后继续把结果解析成 JSON 对象。
+
+JSON 解析失败时不会直接抛错，而是返回：
+
+- `data: null`
+- `parseError.message`
+- `parseError.preview`
+
+如果显式传入 `text.format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验。schema 不匹配时同样返回 `data: null` 和 `parseError`。
 
 #### 流式文本
 
@@ -187,10 +200,25 @@ const result = await callChatCompletionJson<{
   },
 });
 
-console.log(result.data.summary);
+if (result.parseError) {
+  console.error(result.parseError.preview);
+}
+else {
+  console.log(result.data?.summary);
+}
 ```
 
 如果不传 `response_format`，封装层默认使用 `{ type: 'json_object' }`。
+
+解析时会尽量从文本中提取 JSON 对象：
+
+- 优先直接解析完整输出
+- 支持从 code fence 中提取 JSON
+- 支持从混杂文本中提取一个平衡的 JSON 对象子串
+
+如果最终仍无法解析，会返回 `data: null` 和 `parseError`，而不是直接抛错。
+
+如果显式传入 `response_format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验。schema 不匹配时同样返回 `data: null` 和 `parseError`。
 
 #### 流式文本
 
@@ -267,7 +295,11 @@ JSON 对象：
 
 ```ts
 interface JsonResult<TData, TRaw> {
-  data: TData;
+  data: TData | null;
+  parseError: {
+    message: string;
+    preview: string;
+  } | null;
   raw: TRaw;
 }
 ```
@@ -330,12 +362,15 @@ interface ToolLoopResult<TRaw> {
 - `callChatCompletionToolOnce` 固定 `n: 1`
 - `callChatCompletionTools` 固定 `n: 1`
 - `callResponseJson` 会把 JSON-only prompt 追加到 `instructions`
-- `callChatCompletionJson` 会把 JSON-only prompt 追加为一条额外 `developer` message
+- `callChatCompletionJson` 会把 JSON-only prompt 注入到“最新一段 user 消息”之前；如果最后一条不是 `user`，则追加到末尾
+- 显式传入 `json_schema` 时，`callResponseJson` 和 `callChatCompletionJson` 都会在 JSON 解析成功后继续做一次 Ajv schema 校验
 - 工具调用默认 `maxSteps` 为 `8`
 
 ## 当前限制
 
 - `callChatCompletionJson` 只支持单 choice JSON 结果
+- `callChatCompletionJson` 只接受 JSON 对象；顶层数组会被视为解析失败
+- `callResponseJson` 只接受 JSON 对象
 - `callChatCompletionStream` 当前只消费 `choices[0]?.delta?.content`
 - `callResponseStream` 当前只消费 `response.output_text.delta`
 - 工具调用自动循环当前只支持 function tools，不执行 hosted tools

@@ -1,32 +1,27 @@
 import type OpenAI from 'openai';
+import type { CallJsonResult } from '../shared/json.ts';
 import type {
-  ToolCallRecord,
+  CallToolOnceResult,
+  CallToolsResult,
   ToolExecutionOptions,
   ToolHandlerMap,
-  ToolResultRecord,
 } from '../shared/tools.js';
-import type {
-  OpenAIClientOptions,
-  OptionalModel,
-  TextStreamCallbacks,
-} from '../shared/types.js';
+import type { CallResult, OpenAIClientOptions, OptionalModel, TextStreamCallbacks } from '../shared/types.js';
 
 export type CallResponseParams
   = OpenAIClientOptions
     & OptionalModel<OpenAI.Responses.ResponseCreateParamsNonStreaming>;
 
-export interface CallResponseResult {
-  text: string;
-  raw: OpenAI.Responses.Response;
+export interface CallResponseResult extends CallResult<OpenAI.Responses.Response> {
+
 }
 
 export type CallResponseJsonParams
   = OpenAIClientOptions
     & OptionalModel<OpenAI.Responses.ResponseCreateParamsNonStreaming>;
 
-export interface CallResponseJsonResult<T = Record<string, unknown>> {
-  data: T;
-  raw: OpenAI.Responses.Response;
+export interface CallResponseJsonResult<T = Record<string, unknown>> extends CallJsonResult<T, OpenAI.Responses.Response> {
+
 }
 
 export type CallResponseStreamParams
@@ -43,11 +38,8 @@ type CallResponseToolBaseParams
 
 export type CallResponseToolOnceParams = CallResponseToolBaseParams
 
-export interface CallResponseToolOnceResult {
-  text: string;
-  raw: OpenAI.Responses.Response;
-  toolCalls: ToolCallRecord[];
-  done: boolean;
+export interface CallResponseToolOnceResult extends CallToolOnceResult<OpenAI.Responses.Response> {
+
 }
 
 export type CallResponseToolsParams
@@ -57,10 +49,6 @@ export type CallResponseToolsParams
       handlers: ToolHandlerMap;
     };
 
-export interface CallResponseToolsResult {
-  text: string;
-  raw: OpenAI.Responses.Response;
-  steps: number;
-  toolCalls: ToolCallRecord[];
-  toolResults: ToolResultRecord[];
+export interface CallResponseToolsResult extends CallToolsResult<OpenAI.Responses.Response> {
+
 }

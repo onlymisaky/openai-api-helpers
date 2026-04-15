@@ -1,3 +1,6 @@
+import type OpenAI from 'openai';
+import type { CallResult } from './types.ts';
+
 export interface ToolCallRecord {
   id: string;
   name: string;
@@ -30,6 +33,17 @@ export type ToolHandler = (
 ) => Promise<unknown> | unknown
 
 export type ToolHandlerMap = Record<string, ToolHandler>
+
+export interface CallToolOnceResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
+  toolCalls: ToolCallRecord[];
+  done: boolean;
+}
+
+export interface CallToolsResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
+  steps: number;
+  toolCalls: ToolCallRecord[];
+  toolResults: ToolResultRecord[];
+}
 
 export const DEFAULT_MAX_TOOL_STEPS = 8
 

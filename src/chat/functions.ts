@@ -1,3 +1,4 @@
+import type { JsonSchema } from '../shared/json.ts';
 import type {
   CallChatCompletionJsonParams,
   CallChatCompletionJsonResult,
@@ -7,9 +8,25 @@ import type {
 } from './types.js';
 import { getClient } from '../shared/client.js';
 import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants.js';
+import { validateParsedJsonWithSchema } from '../shared/json.ts';
 import { createNonStreamingParams, createStreamingParams } from './client.js';
-import { extractChoiceTexts, parseSingleChoiceJsonResponse } from './json.js';
+import { extractChoiceTexts, extractTextContent, parseSingleChoiceJsonResponse } from './json.js';
 import { consumeStream, createStreamGenerator } from './stream.js';
+
+function getChatResponseFormatSchema(
+  responseFormat: CallChatCompletionJsonParams['response_format'] | undefined,
+): JsonSchema | null {
+  if (responseFormat?.type !== 'json_schema') {
+    return null;
+  }
+
+  const schema = responseFormat.json_schema?.schema;
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+    return null;
+  }
+
+  return schema as JsonSchema;
+}
 
 /**
  * Compatibility wrapper around the legacy Chat Completions API.
@@ -75,9 +92,16 @@ export async function callChatCompletionJson<T = Record<string, unknown>>(
     n: 1,
     response_format: responseFormat,
   });
+  const rawText = extractTextContent(response.choices[0]?.message);
+  const parsed = validateParsedJsonWithSchema<T>(
+    rawText,
+    parseSingleChoiceJsonResponse<T>(response),
+    getChatResponseFormatSchema(params.response_format),
+  );
 
   return {
-    data: parseSingleChoiceJsonResponse<T>(response),
+    data: parsed.data,
+    parseError: parsed.parseError,
     raw: response,
   };
 }

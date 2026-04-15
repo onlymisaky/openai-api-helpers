@@ -1,32 +1,29 @@
 import type OpenAI from 'openai';
+import type { CallJsonResult } from '../shared/json.ts';
 import type {
+  CallToolOnceResult,
+  CallToolsResult,
   ToolCallRecord,
   ToolExecutionOptions,
   ToolHandlerMap,
   ToolResultRecord,
 } from '../shared/tools.js';
-import type {
-  OpenAIClientOptions,
-  OptionalModel,
-  TextStreamCallbacks,
-} from '../shared/types.js';
+import type { CallResult, OpenAIClientOptions, OptionalModel, TextStreamCallbacks } from '../shared/types.js';
 
 export type CallChatCompletionParams
   = OpenAIClientOptions
     & OptionalModel<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming>;
 
-export interface CallChatCompletionResult {
-  text: string;
-  raw: OpenAI.Chat.ChatCompletion;
+export interface CallChatCompletionResult extends CallResult<OpenAI.Chat.ChatCompletion> {
+
 }
 
 export type CallChatCompletionJsonParams
   = OpenAIClientOptions
     & OptionalModel<Omit<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming, 'n'>>;
 
-export interface CallChatCompletionJsonResult<T = Record<string, unknown>> {
-  data: T;
-  raw: OpenAI.Chat.ChatCompletion;
+export interface CallChatCompletionJsonResult<T = Record<string, unknown>> extends CallJsonResult<T, OpenAI.Chat.ChatCompletion> {
+
 }
 
 export type CallChatCompletionStreamParams
@@ -43,11 +40,8 @@ type CallChatCompletionToolBaseParams
 
 export type CallChatCompletionToolOnceParams = CallChatCompletionToolBaseParams
 
-export interface CallChatCompletionToolOnceResult {
-  text: string;
-  raw: OpenAI.Chat.ChatCompletion;
-  toolCalls: ToolCallRecord[];
-  done: boolean;
+export interface CallChatCompletionToolOnceResult extends CallToolOnceResult<OpenAI.Chat.ChatCompletion> {
+
 }
 
 export type CallChatCompletionToolsParams
@@ -57,9 +51,7 @@ export type CallChatCompletionToolsParams
       handlers: ToolHandlerMap;
     };
 
-export interface CallChatCompletionToolsResult {
-  text: string;
-  raw: OpenAI.Chat.ChatCompletion;
+export interface CallChatCompletionToolsResult extends CallToolsResult<OpenAI.Chat.ChatCompletion> {
   steps: number;
   toolCalls: ToolCallRecord[];
   toolResults: ToolResultRecord[];

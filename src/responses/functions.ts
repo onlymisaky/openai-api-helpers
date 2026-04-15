@@ -1,3 +1,4 @@
+import type { JsonSchema } from '../shared/json.ts';
 import type {
   CallResponseJsonParams,
   CallResponseJsonResult,
@@ -7,9 +8,25 @@ import type {
 } from './types.js';
 import { getClient } from '../shared/client.js';
 import { JSON_ONLY_SYSTEM_PROMPT } from '../shared/constants.js';
+import { validateParsedJsonWithSchema } from '../shared/json.ts';
 import { createJsonTextFormat, createNonStreamingParams, createStreamingParams } from './client.js';
 import { parseResponsesJsonResponse } from './json.js';
 import { consumeStream, createStreamGenerator } from './stream.js';
+
+function getResponsesTextFormatSchema(
+  textFormat: CallResponseJsonParams['text'] | undefined,
+): JsonSchema | null {
+  if (textFormat?.format?.type !== 'json_schema') {
+    return null;
+  }
+
+  const schema = textFormat.format.schema;
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+    return null;
+  }
+
+  return schema as JsonSchema;
+}
 
 export async function callResponse(
   params: CallResponseParams,
@@ -42,9 +59,15 @@ export async function callResponseJson<T = Record<string, unknown>>(
       text,
     }),
   );
+  const parsed = validateParsedJsonWithSchema<T>(
+    response.output_text ?? '',
+    parseResponsesJsonResponse<T>(response),
+    getResponsesTextFormatSchema(params.text),
+  );
 
   return {
-    data: parseResponsesJsonResponse<T>(response),
+    data: parsed.data,
+    parseError: parsed.parseError,
     raw: response,
   };
 }
