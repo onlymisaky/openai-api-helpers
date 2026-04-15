@@ -55,7 +55,7 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "tsx watch examples/index.ts",
+    "dev": "tsx examples/index.ts",
     "clean": "rm -rf dist",
     "build": "tsup --config tsup.config.ts",
     "changeset": "changeset",
