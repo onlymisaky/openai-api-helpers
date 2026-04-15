@@ -11,12 +11,18 @@ export interface JsonParseError {
   preview: string;
 }
 
+export interface JsonSchemaError {
+  message: string;
+  preview: string;
+}
+
 /**
  * 解析后的 JSON 结果
  */
 export interface ParsedJsonResult<T = Record<string, unknown>> {
   data: T | null;
   parseError: JsonParseError | null;
+  schemaError: JsonSchemaError | null;
 }
 
 /**
@@ -59,6 +65,7 @@ function successParsedJsonResult<T = Record<string, unknown>>(data: T): ParsedJs
   return {
     data,
     parseError: null,
+    schemaError: null,
   };
 }
 
@@ -66,6 +73,18 @@ function failureParsedJsonResult<T = Record<string, unknown>>(parseError: JsonPa
   return {
     data: null,
     parseError,
+    schemaError: null,
+  };
+}
+
+function withSchemaError<T = Record<string, unknown>>(
+  data: T,
+  schemaError: JsonSchemaError,
+): ParsedJsonResult<T> {
+  return {
+    data,
+    parseError: null,
+    schemaError,
   };
 }
 
@@ -291,14 +310,16 @@ export function validateParsedJsonWithSchema<T = Record<string, unknown>>(
       return parsedResult;
     }
 
-    return failureParsedJsonResult(
+    return withSchemaError(
+      parsedResult.data,
       createSchemaValidationError(
         rawText,
         `Schema validation failed: ${formatAjvErrors(validator.errors)}`,
       ),
     );
   } catch (error) {
-    return failureParsedJsonResult(
+    return withSchemaError(
+      parsedResult.data,
       createSchemaValidationError(
         rawText,
         `Invalid JSON schema: ${error instanceof Error ? error.message : String(error)}`,

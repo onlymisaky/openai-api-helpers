@@ -68,6 +68,7 @@ export async function callResponseJson<T = Record<string, unknown>>(
   return {
     data: parsed.data,
     parseError: parsed.parseError,
+    schemaError: parsed.schemaError,
     raw: response,
   };
 }

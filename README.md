@@ -86,6 +86,10 @@ const result = await callResponseJson<{
 if (result.parseError) {
   console.error(result.parseError.message);
 }
+else if (result.schemaError) {
+  console.error(result.schemaError.message);
+  console.log(result.data);
+}
 else {
   console.log(result.data?.title);
 }
@@ -99,7 +103,10 @@ JSON 解析失败时不会直接抛错，而是返回：
 - `parseError.message`
 - `parseError.preview`
 
-如果显式传入 `text.format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验。schema 不匹配时同样返回 `data: null` 和 `parseError`。
+如果显式传入 `text.format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验：
+
+- schema 匹配：`data` 保留，`schemaError === null`
+- schema 不匹配：`data` 仍然保留，`schemaError` 包含校验失败信息
 
 #### 流式文本
 
@@ -203,6 +210,10 @@ const result = await callChatCompletionJson<{
 if (result.parseError) {
   console.error(result.parseError.preview);
 }
+else if (result.schemaError) {
+  console.error(result.schemaError.message);
+  console.log(result.data);
+}
 else {
   console.log(result.data?.summary);
 }
@@ -218,7 +229,10 @@ else {
 
 如果最终仍无法解析，会返回 `data: null` 和 `parseError`，而不是直接抛错。
 
-如果显式传入 `response_format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验。schema 不匹配时同样返回 `data: null` 和 `parseError`。
+如果显式传入 `response_format.type === 'json_schema'`，封装层会在 JSON 解析成功后，再用 `Ajv` 按该 schema 做一次运行时校验：
+
+- schema 匹配：`data` 保留，`schemaError === null`
+- schema 不匹配：`data` 仍然保留，`schemaError` 包含校验失败信息
 
 #### 流式文本
 
@@ -300,6 +314,10 @@ interface JsonResult<TData, TRaw> {
     message: string;
     preview: string;
   } | null;
+  schemaError: {
+    message: string;
+    preview: string;
+  } | null;
   raw: TRaw;
 }
 ```
@@ -363,7 +381,7 @@ interface ToolLoopResult<TRaw> {
 - `callChatCompletionTools` 固定 `n: 1`
 - `callResponseJson` 会把 JSON-only prompt 追加到 `instructions`
 - `callChatCompletionJson` 会把 JSON-only prompt 注入到“最新一段 user 消息”之前；如果最后一条不是 `user`，则追加到末尾
-- 显式传入 `json_schema` 时，`callResponseJson` 和 `callChatCompletionJson` 都会在 JSON 解析成功后继续做一次 Ajv schema 校验
+- 显式传入 `json_schema` 时，`callResponseJson` 和 `callChatCompletionJson` 都会在 JSON 解析成功后继续做一次 Ajv schema 校验；schema 不匹配时保留 `data`，并通过 `schemaError` 返回错误
 - 工具调用默认 `maxSteps` 为 `8`
 
 ## 当前限制
