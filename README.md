@@ -32,6 +32,51 @@
 npm install openai openai-api-helpers
 ```
 
+### Examples
+
+examples 通过包导出消费 `dist` 产物，因此先构建：
+
+```bash
+npm run build
+```
+
+然后通过分发入口运行某个示例：
+
+```bash
+npm run example -- chat/json
+npm run example -- responses/tools-loop
+```
+
+也可以继续使用：
+
+```bash
+npm run dev -- chat/json
+tsx examples/index.ts chat/json
+```
+
+可选示例名：
+
+- `chat/text`
+- `chat/json`
+- `chat/stream`
+- `chat/tool-once`
+- `chat/tools-loop`
+- `responses/text`
+- `responses/json`
+- `responses/stream`
+- `responses/tool-once`
+- `responses/tools-loop`
+
+必需环境变量：
+
+- `OPENAI_API_KEY`
+
+可选环境变量：
+
+- `OPENAI_BASE_URL`
+- `OPENAI_MODEL_CHAT`
+- `OPENAI_MODEL_RESPONSES`
+
 ### Responses API
 
 #### 普通文本
