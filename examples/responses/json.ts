@@ -1,32 +1,26 @@
 import { callResponseJson } from 'openai-api-helpers/responses'
-import { getOptionalBaseUrl, getResponsesModel, printSection, requireApiKey } from '../shared.js'
+import { API_KEY, BASE_URL, MODEL_RESPONSES, printSection } from '../shared/index.js'
+import { userMessage } from '../shared/messages.js'
+import { schema } from '../shared/schema.js'
 
 async function main() {
+  printSection('userMessage', userMessage)
+
   const result = await callResponseJson<{
-    summary: string
-    keywords: string[]
+    model: string
+    version: string
+    latest: string
+    features: string[]
   }>({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getResponsesModel(),
-    input: 'Summarize what JSON Schema is for API responses.',
-    instructions: 'Return only structured data.',
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL_RESPONSES,
+    input: userMessage,
     text: {
       format: {
         type: 'json_schema',
         name: 'schema_summary',
-        schema: {
-          type: 'object',
-          properties: {
-            summary: { type: 'string' },
-            keywords: {
-              type: 'array',
-              items: { type: 'string' },
-            },
-          },
-          required: ['summary', 'keywords'],
-          additionalProperties: false,
-        },
+        schema,
       },
     },
   })
@@ -40,7 +34,7 @@ async function main() {
     printSection('schemaError', result.schemaError)
   }
 
-  printSection('data', result.data)
+  printSection('assistantMessage', result.data)
 }
 
 void main()

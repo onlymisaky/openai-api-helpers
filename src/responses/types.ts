@@ -1,8 +1,8 @@
 import type OpenAI from 'openai';
 import type { CallJsonResult } from '../shared/json.ts';
 import type {
-  CallToolOnceResult,
-  CallToolsResult,
+  CallToolCallsResult,
+  CallToolsLoopResult,
   ToolExecutionOptions,
   ToolHandlerMap,
 } from '../shared/tools.js';
@@ -36,19 +36,19 @@ type CallResponseToolBaseParams
       tools: OpenAI.Responses.FunctionTool[];
     };
 
-export type CallResponseToolOnceParams = CallResponseToolBaseParams
+export type CallResponseToolCallsParams
+  = CallResponseToolBaseParams
+    & Pick<ToolExecutionOptions, 'onStep' | 'onToolCall'>;
 
-export interface CallResponseToolOnceResult extends CallToolOnceResult<OpenAI.Responses.Response> {
+export type CallResponseToolCallsResult = CallToolCallsResult<OpenAI.Responses.Response>
 
-}
-
-export type CallResponseToolsParams
+export type CallResponseToolsLoopParams
   = CallResponseToolBaseParams
     & ToolExecutionOptions
     & {
       handlers: ToolHandlerMap;
     };
 
-export interface CallResponseToolsResult extends CallToolsResult<OpenAI.Responses.Response> {
+export interface CallResponseToolsLoopResult extends CallToolsLoopResult<OpenAI.Responses.Response> {
 
 }

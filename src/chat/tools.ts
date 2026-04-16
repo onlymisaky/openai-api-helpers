@@ -1,10 +1,10 @@
 import type OpenAI from 'openai';
 import type { ToolCallRecord, ToolResultRecord } from '../shared/tools.js';
 import type {
-  CallChatCompletionToolOnceParams,
-  CallChatCompletionToolOnceResult,
-  CallChatCompletionToolsParams,
-  CallChatCompletionToolsResult,
+  CallChatCompletionToolCallsParams,
+  CallChatCompletionToolCallsResult,
+  CallChatCompletionToolsLoopParams,
+  CallChatCompletionToolsLoopResult,
 } from './types.js';
 import { getClient } from '../shared/client.js';
 import {
@@ -16,28 +16,11 @@ import {
 import { createNonStreamingParams } from './client.js';
 import { extractChoiceTexts } from './json.js';
 
-export async function callChatCompletionToolOnce(
-  params: CallChatCompletionToolOnceParams,
-): Promise<CallChatCompletionToolOnceResult> {
+export async function callChatCompletionToolsLoop(
+  params: CallChatCompletionToolsLoopParams,
+): Promise<CallChatCompletionToolsLoopResult> {
   const client = getClient(params);
-  const response = await client.chat.completions.create({
-    ...createNonStreamingParams(params),
-    n: 1,
-  });
-  const toolCalls = extractFunctionToolCalls(response);
 
-  return {
-    text: extractChoiceTexts(response).filter(Boolean).join('\n\n'),
-    raw: response,
-    toolCalls,
-    done: toolCalls.length === 0,
-  };
-}
-
-export async function callChatCompletionTools(
-  params: CallChatCompletionToolsParams,
-): Promise<CallChatCompletionToolsResult> {
-  const client = getClient(params);
   const maxSteps = getMaxSteps(params.maxSteps);
   const allToolCalls: ToolCallRecord[] = [];
   const allToolResults: ToolResultRecord[] = [];
@@ -100,6 +83,37 @@ export async function callChatCompletionTools(
   }
 
   throw new Error(`Tool execution exceeded maxSteps (${maxSteps}).`)
+}
+
+export async function callChatCompletionToolCalls(
+  params: CallChatCompletionToolCallsParams,
+): Promise<CallChatCompletionToolCallsResult> {
+  const client = getClient(params);
+  const response = await client.chat.completions.create({
+    ...createNonStreamingParams(params),
+    n: 1,
+  });
+  const text = extractChoiceTexts(response).filter(Boolean).join('\n\n');
+  const toolCalls = extractFunctionToolCalls(response);
+  const done = toolCalls.length === 0;
+
+  await params.onStep?.({
+    step: 1,
+    text,
+    toolCalls,
+    done,
+  });
+
+  for (const toolCall of toolCalls) {
+    await params.onToolCall?.(toolCall);
+  }
+
+  return {
+    text,
+    raw: response,
+    toolCalls,
+    done,
+  };
 }
 
 function extractFunctionToolCalls(

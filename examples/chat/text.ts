@@ -1,25 +1,24 @@
 import { callChatCompletion } from 'openai-api-helpers/chat'
-import { getChatModel, getOptionalBaseUrl, printSection, requireApiKey } from '../shared.js'
+import { API_KEY, BASE_URL, MODEL, printSection } from '../shared/index.js'
+import { userMessage } from '../shared/messages.js'
 
 async function main() {
+  printSection('userMessage', userMessage)
+
   const result = await callChatCompletion({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getChatModel(),
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL,
     messages: [
       {
-        role: 'developer',
-        content: 'You are a concise technical assistant.',
-      },
-      {
         role: 'user',
-        content: 'Use one sentence to explain why structured output is useful.',
+        content: userMessage,
       },
     ],
   })
 
-  printSection('text', result.text)
-  printSection('choiceCount', result.raw.choices.length)
+  printSection('assistantMessage', result.text)
+  printSection('assistantMessage', result.raw.id)
 }
 
 void main()

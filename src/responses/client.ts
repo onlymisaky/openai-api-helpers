@@ -3,8 +3,8 @@ import type {
   CallResponseJsonParams,
   CallResponseParams,
   CallResponseStreamParams,
-  CallResponseToolOnceParams,
-  CallResponseToolsParams,
+  CallResponseToolCallsParams,
+  CallResponseToolsLoopParams,
 } from './types.js';
 import { DEFAULT_MODEL } from '../shared/constants.js';
 
@@ -12,10 +12,28 @@ export function createNonStreamingParams(
   params:
     | CallResponseParams
     | CallResponseJsonParams
-    | CallResponseToolOnceParams
-    | CallResponseToolsParams,
+    | CallResponseToolCallsParams
+    | CallResponseToolsLoopParams,
 ): OpenAI.Responses.ResponseCreateParamsNonStreaming {
-  const { apiKey, baseURL, organization, project, client, ...request } = params;
+  const {
+    apiKey,
+    baseURL,
+    organization,
+    project,
+    client,
+    handlers,
+    maxSteps,
+    onStep,
+    onToolCall,
+    onToolResult,
+    ...request
+  } = params as (CallResponseToolsLoopParams | CallResponseToolCallsParams) & {
+    handlers?: unknown;
+    maxSteps?: unknown;
+    onStep?: unknown;
+    onToolCall?: unknown;
+    onToolResult?: unknown;
+  };
 
   return {
     ...request,
@@ -32,6 +50,7 @@ export function createStreamingParams(
     organization,
     project,
     client,
+    onStart,
     onChunk,
     onDone,
     ...request

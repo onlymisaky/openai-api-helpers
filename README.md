@@ -47,32 +47,22 @@ npm run example -- chat/json
 npm run example -- responses/tools-loop
 ```
 
-也可以继续使用：
-
-```bash
-npm run dev -- chat/json
-tsx examples/index.ts chat/json
-```
-
 可选示例名：
 
 - `chat/text`
 - `chat/json`
 - `chat/stream`
-- `chat/tool-once`
+- `chat/tool-calls`
 - `chat/tools-loop`
 - `responses/text`
 - `responses/json`
 - `responses/stream`
-- `responses/tool-once`
+- `responses/tool-calls`
 - `responses/tools-loop`
-
-必需环境变量：
-
-- `OPENAI_API_KEY`
 
 可选环境变量：
 
+- `OPENAI_API_KEY`
 - `OPENAI_BASE_URL`
 - `OPENAI_MODEL_CHAT`
 - `OPENAI_MODEL_RESPONSES`
@@ -81,64 +71,11 @@ tsx examples/index.ts chat/json
 
 #### 普通文本
 
-```ts
-import { callResponse } from 'openai-api-helpers/responses';
-
-const result = await callResponse({
-  input: '用一句话解释 TypeScript 的作用',
-  instructions: '你是一个简洁的技术助手',
-  text: {
-    verbosity: 'low',
-  },
-});
-
-console.log(result.text);
-console.log(result.raw.id);
-```
+[examples/responses/text.ts](examples/responses/text.ts)
 
 #### JSON 对象
 
-```ts
-import { callResponseJson } from 'openai-api-helpers/responses';
-
-const result = await callResponseJson<{
-  title: string;
-  tags: string[];
-}>({
-  input: '为文章生成标题和标签：介绍 Node.js 流式处理',
-  instructions: '只输出结构化结果',
-  text: {
-    format: {
-      type: 'json_schema',
-      name: 'article_metadata',
-      strict: true,
-      schema: {
-        type: 'object',
-        properties: {
-          title: { type: 'string' },
-          tags: {
-            type: 'array',
-            items: { type: 'string' },
-          },
-        },
-        required: ['title', 'tags'],
-        additionalProperties: false,
-      },
-    },
-  },
-});
-
-if (result.parseError) {
-  console.error(result.parseError.message);
-}
-else if (result.schemaError) {
-  console.error(result.schemaError.message);
-  console.log(result.data);
-}
-else {
-  console.log(result.data?.title);
-}
-```
+[examples/responses/json.ts](examples/responses/json.ts)
 
 如果不传 `text.format`，封装层会自动补一个宽松的 object schema，然后继续把结果解析成 JSON 对象。
 
@@ -155,114 +92,27 @@ JSON 解析失败时不会直接抛错，而是返回：
 
 #### 流式文本
 
-```ts
-import { callResponseStream } from 'openai-api-helpers/responses';
-
-await callResponseStream({
-  input: '写一段简短的产品介绍',
-  instructions: '保持自然、简洁',
-  onChunk(chunk) {
-    process.stdout.write(chunk);
-  },
-  onDone(fullText) {
-    console.log('\n---');
-    console.log(fullText.length);
-  },
-});
-```
+[examples/responses/stream.ts](examples/responses/stream.ts)
 
 #### 工具调用
 
-```ts
-import { callResponseTools } from 'openai-api-helpers/responses';
+只返回 toolCalls：
 
-const result = await callResponseTools({
-  input: '查询上海今天的天气，然后给出穿衣建议',
-  tools: [
-    {
-      type: 'function',
-      name: 'get_weather',
-      description: '查询天气',
-      strict: true,
-      parameters: {
-        type: 'object',
-        properties: {
-          city: { type: 'string' },
-        },
-        required: ['city'],
-        additionalProperties: false,
-      },
-    },
-  ],
-  handlers: {
-    get_weather({ city }) {
-      return {
-        city,
-        condition: 'sunny',
-        temperatureC: 26,
-      };
-    },
-  },
-});
+[examples/responses/tool-calls.ts](examples/responses/tool-calls.ts)
 
-console.log(result.text);
-console.log(result.toolCalls.length);
-```
+自动循环执行：
+
+[examples/responses/tools-loop.ts](examples/responses/tools-loop.ts)
 
 ### Chat Completions API
 
 #### 普通文本
 
-```ts
-import { callChatCompletion } from 'openai-api-helpers/chat';
-
-const result = await callChatCompletion({
-  messages: [
-    {
-      role: 'developer',
-      content: '你是一个简洁的技术助手',
-    },
-    {
-      role: 'user',
-      content: '继续使用 Chat Completions 完成一次普通文本调用',
-    },
-  ],
-});
-
-console.log(result.text);
-console.log(result.raw.choices.length);
-```
+[examples/chat/text.ts](examples/chat/text.ts)
 
 #### JSON 对象
 
-```ts
-import { callChatCompletionJson } from 'openai-api-helpers/chat';
-
-const result = await callChatCompletionJson<{
-  summary: string;
-}>({
-  messages: [
-    {
-      role: 'user',
-      content: '总结一下什么是流式输出',
-    },
-  ],
-  response_format: {
-    type: 'json_object',
-  },
-});
-
-if (result.parseError) {
-  console.error(result.parseError.preview);
-}
-else if (result.schemaError) {
-  console.error(result.schemaError.message);
-  console.log(result.data);
-}
-else {
-  console.log(result.data?.summary);
-}
-```
+[examples/chat/json.ts](examples/chat/json.ts)
 
 如果不传 `response_format`，封装层默认使用 `{ type: 'json_object' }`。
 
@@ -281,63 +131,17 @@ else {
 
 #### 流式文本
 
-```ts
-import { callChatCompletionStream } from 'openai-api-helpers/chat';
-
-const stream = await callChatCompletionStream({
-  messages: [
-    {
-      role: 'user',
-      content: '逐步解释什么是 backpressure',
-    },
-  ],
-});
-
-for await (const chunk of stream) {
-  process.stdout.write(chunk);
-}
-```
+[examples/chat/stream.ts](examples/chat/stream.ts)
 
 #### 工具调用
 
-```ts
-import { callChatCompletionTools } from 'openai-api-helpers/chat';
+只返回 toolCalls：
 
-const result = await callChatCompletionTools({
-  messages: [
-    {
-      role: 'user',
-      content: '把 13 和 29 相加，然后告诉我结果',
-    },
-  ],
-  tools: [
-    {
-      type: 'function',
-      function: {
-        name: 'add_numbers',
-        description: '返回两个整数的和',
-        parameters: {
-          type: 'object',
-          properties: {
-            a: { type: 'number' },
-            b: { type: 'number' },
-          },
-          required: ['a', 'b'],
-          additionalProperties: false,
-        },
-      },
-    },
-  ],
-  handlers: {
-    add_numbers({ a, b }) {
-      return Number(a) + Number(b);
-    },
-  },
-});
+[examples/chat/tool-calls.ts](examples/chat/tool-calls.ts)
 
-console.log(result.text);
-console.log(result.steps);
-```
+自动循环执行：
+
+[examples/chat/tools-loop.ts](examples/chat/tools-loop.ts)
 
 ## 返回值类型
 
@@ -371,13 +175,15 @@ interface JsonResult<TData, TRaw> {
 
 - 传 `onChunk` 时，返回 `Promise<string>`
 - 不传 `onChunk` 时，返回 `Promise<AsyncGenerator<string, void, unknown>>`
+- `onStart` 会在第一个非空文本 chunk 到达前触发一次
+- `onChunk(chunk, index)` 的 `index` 从 `0` 开始，只统计实际输出的文本 chunk
 
 `raw` 保持统一命名，方便两组 API 在排错时都能直接读取原始响应对象。
 
 工具调用：
 
 ```ts
-interface ToolOnceResult<TRaw> {
+interface ToolCallsResult<TRaw> {
   text: string;
   raw: TRaw;
   toolCalls: ToolCallRecord[];
@@ -393,6 +199,8 @@ interface ToolLoopResult<TRaw> {
 }
 ```
 
+说明：`call...ToolCalls` 只“请求一次并返回 toolCalls”，不会执行 handler；`call...ToolsLoop` 会自动执行 handler 并循环直到 done。
+
 ## 类型说明
 
 主要导出类型：
@@ -401,13 +209,13 @@ interface ToolLoopResult<TRaw> {
 - `CallChatCompletionParams`
 - `CallChatCompletionJsonParams`
 - `CallChatCompletionStreamParams`
-- `CallChatCompletionToolOnceParams`
-- `CallChatCompletionToolsParams`
+- `CallChatCompletionToolCallsParams`
+- `CallChatCompletionToolsLoopParams`
 - `CallResponseParams`
 - `CallResponseJsonParams`
 - `CallResponseStreamParams`
-- `CallResponseToolOnceParams`
-- `CallResponseToolsParams`
+- `CallResponseToolCallsParams`
+- `CallResponseToolsLoopParams`
 - `ToolHandler`
 - `ToolHandlerMap`
 
@@ -422,8 +230,8 @@ interface ToolLoopResult<TRaw> {
 - 默认模型：`gpt-4.1-mini`
 - 默认 API Key：优先读取 `OPENAI_API_KEY`
 - `callChatCompletionJson` 固定 `n: 1`
-- `callChatCompletionToolOnce` 固定 `n: 1`
-- `callChatCompletionTools` 固定 `n: 1`
+- `callChatCompletionToolCalls` 固定 `n: 1`
+- `callChatCompletionToolsLoop` 固定 `n: 1`
 - `callResponseJson` 会把 JSON-only prompt 追加到 `instructions`
 - `callChatCompletionJson` 会把 JSON-only prompt 注入到“最新一段 user 消息”之前；如果最后一条不是 `user`，则追加到末尾
 - 显式传入 `json_schema` 时，`callResponseJson` 和 `callChatCompletionJson` 都会在 JSON 解析成功后继续做一次 Ajv schema 校验；schema 不匹配时保留 `data`，并通过 `schemaError` 返回错误

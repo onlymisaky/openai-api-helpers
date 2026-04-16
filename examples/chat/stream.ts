@@ -1,18 +1,23 @@
 import { callChatCompletionStream } from 'openai-api-helpers/chat'
-import { getChatModel, getOptionalBaseUrl, requireApiKey } from '../shared.js'
+import { API_KEY, BASE_URL, MODEL, printSection } from '../shared/index.js'
+import { userMessage } from '../shared/messages.js'
 
 async function main() {
+  printSection('userMessage', userMessage)
+
   const stream = await callChatCompletionStream({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getChatModel(),
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL,
     messages: [
       {
         role: 'user',
-        content: 'Explain backpressure in three short bullets.',
+        content: userMessage,
       },
     ],
   })
+
+  printSection('assistantMessage', '')
 
   for await (const chunk of stream) {
     process.stdout.write(chunk)

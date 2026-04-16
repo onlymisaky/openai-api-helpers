@@ -7,12 +7,12 @@ const exampleModules = {
   'chat/text': './chat/text.ts',
   'chat/json': './chat/json.ts',
   'chat/stream': './chat/stream.ts',
-  'chat/tool-once': './chat/tool-once.ts',
+  'chat/tool-calls': './chat/tool-calls.ts',
   'chat/tools-loop': './chat/tools-loop.ts',
   'responses/text': './responses/text.ts',
   'responses/json': './responses/json.ts',
   'responses/stream': './responses/stream.ts',
-  'responses/tool-once': './responses/tool-once.ts',
+  'responses/tool-calls': './responses/tool-calls.ts',
   'responses/tools-loop': './responses/tools-loop.ts',
 } as const
 
@@ -37,13 +37,6 @@ function printUsage(): void {
   for (const key of Object.keys(exampleModules)) {
     console.warn(`- ${key}`)
   }
-
-  console.warn('\nRequired environment variables:')
-  console.warn('- OPENAI_API_KEY')
-  console.warn('\nOptional environment variables:')
-  console.warn('- OPENAI_BASE_URL')
-  console.warn('- OPENAI_MODEL_CHAT')
-  console.warn('- OPENAI_MODEL_RESPONSES')
 }
 
 async function main(): Promise<void> {

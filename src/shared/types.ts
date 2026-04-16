@@ -32,6 +32,7 @@ export interface CallResult<T = OpenAI.Responses.Response | OpenAI.Chat.ChatComp
  * 文本流式调用回调
  */
 export interface TextStreamCallbacks {
-  onChunk?: (chunk: string) => void | Promise<void>;
+  onStart?: () => void | Promise<void>;
+  onChunk?: (chunk: string, index: number) => void | Promise<void>;
   onDone?: (fullText: string) => void | Promise<void>;
 }

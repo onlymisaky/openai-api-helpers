@@ -1,14 +1,19 @@
 import { callResponseStream } from 'openai-api-helpers/responses'
-import { getOptionalBaseUrl, getResponsesModel, requireApiKey } from '../shared.js'
+import { API_KEY, BASE_URL, MODEL_RESPONSES, printSection } from '../shared/index.js'
+import { userMessage } from '../shared/messages.js'
 
 async function main() {
+  printSection('userMessage', userMessage)
+
   await callResponseStream({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getResponsesModel(),
-    input: 'Explain backpressure in three short bullets.',
-    instructions: 'Be brief and practical.',
-    onChunk(chunk) {
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL_RESPONSES,
+    input: userMessage,
+    onChunk(chunk, index) {
+      if (index === 0) {
+        printSection('assistantMessage', '')
+      }
       process.stdout.write(chunk)
     },
     onDone() {

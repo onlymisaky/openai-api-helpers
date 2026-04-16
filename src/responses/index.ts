@@ -12,8 +12,8 @@ export {
   callResponseStream,
 } from './functions.js';
 export {
-  callResponseToolOnce,
-  callResponseTools,
+  callResponseToolCalls,
+  callResponseToolsLoop,
 } from './tools.js';
 export type {
   CallResponseJsonParams,
@@ -21,8 +21,8 @@ export type {
   CallResponseParams,
   CallResponseResult,
   CallResponseStreamParams,
-  CallResponseToolOnceParams,
-  CallResponseToolOnceResult,
-  CallResponseToolsParams,
-  CallResponseToolsResult,
+  CallResponseToolCallsParams,
+  CallResponseToolCallsResult,
+  CallResponseToolsLoopParams,
+  CallResponseToolsLoopResult,
 } from './types.js';

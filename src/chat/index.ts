@@ -12,8 +12,8 @@ export {
   callChatCompletionStream,
 } from './functions.js';
 export {
-  callChatCompletionToolOnce,
-  callChatCompletionTools,
+  callChatCompletionToolCalls,
+  callChatCompletionToolsLoop,
 } from './tools.js';
 export type {
   CallChatCompletionJsonParams,
@@ -21,8 +21,8 @@ export type {
   CallChatCompletionParams,
   CallChatCompletionResult,
   CallChatCompletionStreamParams,
-  CallChatCompletionToolOnceParams,
-  CallChatCompletionToolOnceResult,
-  CallChatCompletionToolsParams,
-  CallChatCompletionToolsResult,
+  CallChatCompletionToolCallsParams,
+  CallChatCompletionToolCallsResult,
+  CallChatCompletionToolsLoopParams,
+  CallChatCompletionToolsLoopResult,
 } from './types.js';

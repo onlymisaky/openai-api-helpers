@@ -1,10 +1,10 @@
 import type OpenAI from 'openai';
 import type { ToolCallRecord, ToolResultRecord } from '../shared/tools.js';
 import type {
-  CallResponseToolOnceParams,
-  CallResponseToolOnceResult,
-  CallResponseToolsParams,
-  CallResponseToolsResult,
+  CallResponseToolCallsParams,
+  CallResponseToolCallsResult,
+  CallResponseToolsLoopParams,
+  CallResponseToolsLoopResult,
 } from './types.js';
 import { getClient } from '../shared/client.js';
 import {
@@ -15,25 +15,11 @@ import {
 } from '../shared/tools.js';
 import { createNonStreamingParams } from './client.js';
 
-export async function callResponseToolOnce(
-  params: CallResponseToolOnceParams,
-): Promise<CallResponseToolOnceResult> {
+export async function callResponseToolsLoop(
+  params: CallResponseToolsLoopParams,
+): Promise<CallResponseToolsLoopResult> {
   const client = getClient(params);
-  const response = await client.responses.create(createNonStreamingParams(params));
-  const toolCalls = extractFunctionToolCalls(response);
 
-  return {
-    text: response.output_text,
-    raw: response,
-    toolCalls,
-    done: toolCalls.length === 0,
-  };
-}
-
-export async function callResponseTools(
-  params: CallResponseToolsParams,
-): Promise<CallResponseToolsResult> {
-  const client = getClient(params);
   const maxSteps = getMaxSteps(params.maxSteps);
   const allToolCalls: ToolCallRecord[] = [];
   const allToolResults: ToolResultRecord[] = [];
@@ -93,6 +79,33 @@ export async function callResponseTools(
   throw new Error(`Tool execution exceeded maxSteps (${maxSteps}).`)
 }
 
+export async function callResponseToolCalls(
+  params: CallResponseToolCallsParams,
+): Promise<CallResponseToolCallsResult> {
+  const client = getClient(params);
+  const response = await client.responses.create(createNonStreamingParams(params));
+  const toolCalls = extractFunctionToolCalls(response);
+  const done = toolCalls.length === 0;
+
+  await params.onStep?.({
+    step: 1,
+    text: response.output_text,
+    toolCalls,
+    done,
+  });
+
+  for (const toolCall of toolCalls) {
+    await params.onToolCall?.(toolCall);
+  }
+
+  return {
+    text: response.output_text,
+    raw: response,
+    toolCalls,
+    done,
+  };
+}
+
 function extractFunctionToolCalls(
   response: OpenAI.Responses.Response,
 ): ToolCallRecord[] {
@@ -110,7 +123,7 @@ function extractFunctionToolCalls(
 }
 
 function createNextRequest(
-  params: CallResponseToolsParams,
+  params: CallResponseToolsLoopParams,
   response: OpenAI.Responses.Response,
   input: OpenAI.Responses.ResponseInputItem[],
 ): OpenAI.Responses.ResponseCreateParamsNonStreaming {

@@ -18,14 +18,22 @@ export async function consumeStream(
   },
 ): Promise<string> {
   let fullText = '';
+  let chunkIndex = 0;
+  let started = false;
 
   for await (const event of stream) {
     if (event.type !== 'response.output_text.delta' || !event.delta) {
       continue;
     }
 
+    if (!started) {
+      started = true;
+      await params.onStart?.();
+    }
+
     fullText += event.delta;
-    await params.onChunk(event.delta);
+    await params.onChunk(event.delta, chunkIndex);
+    chunkIndex += 1;
   }
 
   if (params.onDone) {

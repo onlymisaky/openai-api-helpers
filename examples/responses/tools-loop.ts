@@ -1,17 +1,20 @@
-import { callResponseTools } from 'openai-api-helpers/responses'
-import { getOptionalBaseUrl, getResponsesModel, printSection, requireApiKey } from '../shared.js'
+import { callResponseToolsLoop } from 'openai-api-helpers/responses'
+import { API_KEY, BASE_URL, MODEL_RESPONSES, printSection } from '../shared/index.js'
+import { userToolsLoopMessage } from '../shared/messages.js'
 
 async function main() {
-  const result = await callResponseTools({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getResponsesModel(),
-    input: 'Find the weather for Shanghai and then tell me if I should bring an umbrella.',
+  printSection('userMessage', userToolsLoopMessage)
+
+  const result = await callResponseToolsLoop({
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL_RESPONSES,
+    input: userToolsLoopMessage,
     tools: [
       {
         type: 'function',
         name: 'get_weather',
-        description: 'Get the current mock weather for a city.',
+        description: '获取城市的天气',
         parameters: {
           type: 'object',
           properties: {
@@ -21,6 +24,17 @@ async function main() {
           additionalProperties: false,
         },
         strict: true,
+      },
+      {
+        type: 'function',
+        name: 'get_time',
+        description: '获取当前时间',
+        parameters: {
+          type: 'object',
+          properties: {},
+          additionalProperties: false,
+        },
+        strict: false,
       },
     ],
     handlers: {
@@ -32,13 +46,16 @@ async function main() {
           umbrella: true,
         }
       },
+      get_time() {
+        return new Date().toLocaleString()
+      },
     },
   })
 
   printSection('steps', result.steps)
   printSection('toolCalls', result.toolCalls)
   printSection('toolResults', result.toolResults)
-  printSection('text', result.text)
+  printSection('assistantMessage', result.text)
 }
 
 void main()

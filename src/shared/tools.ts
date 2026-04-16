@@ -34,12 +34,12 @@ export type ToolHandler = (
 
 export type ToolHandlerMap = Record<string, ToolHandler>
 
-export interface CallToolOnceResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
+export interface CallToolCallsResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
   toolCalls: ToolCallRecord[];
   done: boolean;
 }
 
-export interface CallToolsResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
+export interface CallToolsLoopResult<T = OpenAI.Chat.ChatCompletion | OpenAI.Responses.Response> extends CallResult<T> {
   steps: number;
   toolCalls: ToolCallRecord[];
   toolResults: ToolResultRecord[];

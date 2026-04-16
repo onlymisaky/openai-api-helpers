@@ -19,6 +19,8 @@ export async function consumeStream(
   },
 ): Promise<string> {
   let fullText = '';
+  let chunkIndex = 0;
+  let started = false;
 
   for await (const chunk of stream) {
     const text = chunk.choices[0]?.delta?.content ?? '';
@@ -26,8 +28,14 @@ export async function consumeStream(
       continue;
     }
 
+    if (!started) {
+      started = true;
+      await params.onStart?.();
+    }
+
     fullText += text;
-    await params.onChunk(text);
+    await params.onChunk(text, chunkIndex);
+    chunkIndex += 1;
   }
 
   if (params.onDone) {

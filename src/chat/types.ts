@@ -1,8 +1,8 @@
 import type OpenAI from 'openai';
 import type { CallJsonResult } from '../shared/json.ts';
 import type {
-  CallToolOnceResult,
-  CallToolsResult,
+  CallToolCallsResult,
+  CallToolsLoopResult,
   ToolCallRecord,
   ToolExecutionOptions,
   ToolHandlerMap,
@@ -38,20 +38,20 @@ type CallChatCompletionToolBaseParams
       tools: OpenAI.Chat.ChatCompletionFunctionTool[];
     };
 
-export type CallChatCompletionToolOnceParams = CallChatCompletionToolBaseParams
+export type CallChatCompletionToolCallsParams
+  = CallChatCompletionToolBaseParams
+    & Pick<ToolExecutionOptions, 'onStep' | 'onToolCall'>;
 
-export interface CallChatCompletionToolOnceResult extends CallToolOnceResult<OpenAI.Chat.ChatCompletion> {
+export type CallChatCompletionToolCallsResult = CallToolCallsResult<OpenAI.Chat.ChatCompletion>
 
-}
-
-export type CallChatCompletionToolsParams
+export type CallChatCompletionToolsLoopParams
   = CallChatCompletionToolBaseParams
     & ToolExecutionOptions
     & {
       handlers: ToolHandlerMap;
     };
 
-export interface CallChatCompletionToolsResult extends CallToolsResult<OpenAI.Chat.ChatCompletion> {
+export interface CallChatCompletionToolsLoopResult extends CallToolsLoopResult<OpenAI.Chat.ChatCompletion> {
   steps: number;
   toolCalls: ToolCallRecord[];
   toolResults: ToolResultRecord[];

@@ -1,18 +1,24 @@
 import { callChatCompletionJson } from 'openai-api-helpers/chat'
-import { getChatModel, getOptionalBaseUrl, printSection, requireApiKey } from '../shared.js'
+import { API_KEY, BASE_URL, MODEL, printSection } from '../shared/index.js'
+import { userMessage } from '../shared/messages.js'
+import { schema } from '../shared/schema.js'
 
 async function main() {
+  printSection('userMessage', userMessage)
+
   const result = await callChatCompletionJson<{
-    summary: string
-    keywords: string[]
+    model: string
+    version: string
+    latest: string
+    features: string[]
   }>({
-    apiKey: requireApiKey(),
-    baseURL: getOptionalBaseUrl(),
-    model: getChatModel(),
+    apiKey: API_KEY,
+    baseURL: BASE_URL,
+    model: MODEL,
     messages: [
       {
         role: 'user',
-        content: 'Summarize what JSON Schema is for API responses.',
+        content: userMessage,
       },
     ],
     response_format: {
@@ -20,18 +26,7 @@ async function main() {
       json_schema: {
         name: 'schema_summary',
         strict: true,
-        schema: {
-          type: 'object',
-          properties: {
-            summary: { type: 'string' },
-            keywords: {
-              type: 'array',
-              items: { type: 'string' },
-            },
-          },
-          required: ['summary', 'keywords'],
-          additionalProperties: false,
-        },
+        schema,
       },
     },
   })
@@ -45,7 +40,7 @@ async function main() {
     printSection('schemaError', result.schemaError)
   }
 
-  printSection('data', result.data)
+  printSection('assistantMessage', result.data)
 }
 
 void main()
