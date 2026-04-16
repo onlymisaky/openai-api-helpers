@@ -19,9 +19,13 @@ const cacheDir = path.join(tempRoot, 'npm-cache');
 const packDir = path.join(tempRoot, 'pack');
 const consumerDir = path.join(tempRoot, 'consumer');
 
-function run(command, args, cwd) {
+function run(command, args, cwd, env) {
   execFileSync(command, args, {
     cwd,
+    env: {
+      ...process.env,
+      ...env,
+    },
     stdio: 'inherit',
   });
 }
@@ -30,7 +34,16 @@ try {
   mkdirSync(packDir, { recursive: true });
   mkdirSync(consumerDir, { recursive: true });
 
-  run(npmCmd, ['pack', '--pack-destination', packDir, '--cache', cacheDir], repoRoot);
+  run(
+    npmCmd,
+    ['pack', '--pack-destination', packDir, '--cache', cacheDir],
+    repoRoot,
+    {
+      // `npm publish --dry-run` propagates dry-run config to child npm processes.
+      // Override it here so smoke tests always produce a real tarball to install.
+      npm_config_dry_run: 'false',
+    },
+  );
 
   const tarball = readdirSync(packDir).find(file => file.endsWith('.tgz'));
   if (!tarball) {
